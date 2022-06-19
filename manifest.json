@@ -1,0 +1,17 @@
+{
+  "manifest_version": 2,
+  "name": "Thunderbird Companion",
+  "description": "Extension to modify Thunderbird behavior to fit my needs",
+  "version": "1.0.0",
+  "author": "Vincent Bernat",
+  "applications": {
+    "gecko": {
+      "id": "thunderbird-companion@vincent.bernat.ch",
+      "strict_min_version": "85.0"
+    }
+  },
+  "permissions": ["messagesRead", "accountsRead", "notifications"],
+  "background": {
+    "page": "background.html"
+  }
+}
