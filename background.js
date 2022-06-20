@@ -15,11 +15,11 @@ async function* iterateMessagePages(page) {
 
 async function load() {
   // ## Notification for new messages
-  const folders = ["/INBOX", "/Notifications/GitHub"];
   messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
+    const folderInfo = await messenger.folders.getFolderInfo(folder);
+    if (!folderInfo.favorite) return;
     for await (let message of iterateMessagePages(messages)) {
       if (message.read) continue;
-      if (!folders.includes(folder.path)) continue;
       await messenger.notifications.create(
         `TBC-NewMail: ${message.headerMessageId}`,
         {
