@@ -14,7 +14,7 @@ async function* iterateMessagePages(page) {
 }
 
 async function load() {
-  // Notification for new messages
+  // ## Notification for new messages
   const folders = ["/INBOX", "/Notifications/GitHub"];
   messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
     for await (let message of iterateMessagePages(messages)) {
@@ -41,6 +41,43 @@ async function load() {
         `Should have opened message from ${message.author}, subject ${message.subject}`
       );
     }
+  });
+
+  // ## Go to next unread folder
+  messenger.commands.onCommand.addListener(async (command) => {
+    if (command !== "next-unread-folder") return;
+    const tab = await messenger.mailTabs.getCurrent();
+    if (!tab || !tab.displayedFolder) return;
+    const accounts = await messenger.accounts.list();
+    let folders = [];
+    for (let account of accounts) {
+      const accountFolders = await messenger.folders.getSubFolders(account);
+      const unreadFolders = async (folders) =>
+        (
+          await Promise.all(
+            folders.map(async (folder) => {
+              const folderInfo = await messenger.folders.getFolderInfo(folder);
+              const unreadSubfolders = await unreadFolders(folder.subFolders);
+              if (
+                folderInfo.unreadMessageCount > 0 ||
+                (folder.accountId === tab.displayedFolder.accountId &&
+                  folder.path === tab.displayedFolder.path)
+              ) {
+                return [folder, ...unreadSubfolders];
+              }
+              return unreadSubfolders;
+            })
+          )
+        ).flat(1);
+      folders = [...folders, ...(await unreadFolders(accountFolders))];
+    }
+    const current = folders.findIndex(
+      (f) =>
+        f.accountId === tab.displayedFolder.accountId &&
+        f.path === tab.displayedFolder.path
+    );
+    const next = folders[current + 1 >= folders.length ? 0 : current + 1];
+    await messenger.mailTabs.update(tab.id, { displayedFolder: next });
   });
 }
 

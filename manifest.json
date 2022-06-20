@@ -11,6 +11,13 @@
     }
   },
   "permissions": ["messagesRead", "accountsRead", "notifications"],
+  "commands": {
+    "next-unread-folder": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+N"
+      }
+    }
+  },
   "background": {
     "page": "background.html"
   }
