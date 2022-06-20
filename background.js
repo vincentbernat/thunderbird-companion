@@ -52,32 +52,27 @@ async function load() {
     let folders = [];
     for (let account of accounts) {
       const accountFolders = await messenger.folders.getSubFolders(account);
-      const unreadFolders = async (folders) =>
-        (
-          await Promise.all(
-            folders.map(async (folder) => {
-              const folderInfo = await messenger.folders.getFolderInfo(folder);
-              const unreadSubfolders = await unreadFolders(folder.subFolders);
-              if (
-                folderInfo.unreadMessageCount > 0 ||
-                (folder.accountId === tab.displayedFolder.accountId &&
-                  folder.path === tab.displayedFolder.path)
-              ) {
-                return [folder, ...unreadSubfolders];
-              }
-              return unreadSubfolders;
-            })
-          )
-        ).flat(1);
-      folders = [...folders, ...(await unreadFolders(accountFolders))];
+      const subFolders = (folders) =>
+        folders
+          .map((folder) => [folder, ...subFolders(folder.subFolders)])
+          .flat(1);
+      folders = [...folders, ...subFolders(accountFolders)];
     }
     const current = folders.findIndex(
       (f) =>
         f.accountId === tab.displayedFolder.accountId &&
         f.path === tab.displayedFolder.path
     );
-    const next = folders[current + 1 >= folders.length ? 0 : current + 1];
-    await messenger.mailTabs.update(tab.id, { displayedFolder: next });
+    const next = current + 1 >= folders.length ? 0 : current + 1;
+    folders = [...folders.slice(next), ...folders.slice(0, next)];
+    // Find first folder with unread messages
+    for (let folder of folders) {
+      const folderInfo = await messenger.folders.getFolderInfo(folder);
+      if (folderInfo.unreadMessageCount > 0) {
+        await messenger.mailTabs.update(tab.id, { displayedFolder: folder });
+        return;
+      }
+    }
   });
 }
 
