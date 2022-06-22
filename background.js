@@ -54,7 +54,11 @@ async function load() {
       const accountFolders = await messenger.folders.getSubFolders(account);
       const subFolders = (folders) =>
         folders
-          .map((folder) => [folder, ...subFolders(folder.subFolders)])
+          .map((folder) =>
+            folder.type !== "archives"
+              ? [folder, ...subFolders(folder.subFolders)]
+              : []
+          )
           .flat(1);
       folders = [...folders, ...subFolders(accountFolders)];
     }
