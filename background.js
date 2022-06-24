@@ -66,8 +66,8 @@ async function load() {
     folders.sort((f1, f2) => {
       if (f1.accountId < f2.accountId) return -1;
       if (f1.accountId > f2.accountId) return 1;
-      if (f1.path < f2.path) return -1;
-      if (f1.path > f2.path) return 1;
+      if (f1.path.toLowerCase() < f2.path.toLowerCase()) return -1;
+      if (f1.path.toLowerCase() > f2.path.toLowerCase()) return 1;
       return 0;
     });
     const current = folders.findIndex(
