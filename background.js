@@ -15,6 +15,7 @@ async function* iterateMessagePages(page) {
 
 async function load() {
   // ## Notification for new messages
+  // This is unreliable until https://bugzilla.mozilla.org/show_bug.cgi?id=1775493 is fixed.
   messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
     const folderInfo = await messenger.folders.getFolderInfo(folder);
     if (!folderInfo.favorite) return;
