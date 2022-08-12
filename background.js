@@ -44,6 +44,7 @@ async function load() {
   });
 
   // ## Go to next unread folder
+  // May miss folders until https://bugzilla.mozilla.org/show_bug.cgi?id=1775410 is solved.
   messenger.commands.onCommand.addListener(async (command) => {
     if (command !== "next-unread-folder") return;
     const tab = await messenger.mailTabs.getCurrent();
