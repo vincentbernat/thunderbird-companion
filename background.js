@@ -79,9 +79,11 @@ async function load() {
     folders = [...folders.slice(next), ...folders.slice(0, next)];
     // Find first folder with unread messages
     for (let folder of folders) {
+      console.time("folderInfo "+folder.name);
       const folderInfo = await messenger.folders.getFolderInfo(folder);
+      console.timeEnd("folderInfo "+folder.name);
       if (folderInfo.unreadMessageCount > 0) {
-        await messenger.mailTabs.update(tab.id, { displayedFolder: folder });
+        messenger.mailTabs.update(tab.id, { displayedFolder: folder });
         return;
       }
     }
