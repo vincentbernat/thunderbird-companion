@@ -18,8 +18,10 @@ async function load() {
   messenger.messages.onNewMailReceived.addListener(async (folder, messages) => {
     const folderInfo = await messenger.folders.getFolderInfo(folder);
     if (!folderInfo.favorite) return;
+    let count = 0;
     for await (let message of iterateMessagePages(messages)) {
       if (message.read) continue;
+      count++;
       await messenger.notifications.create(
         `TBC-NewMail: ${message.headerMessageId}`,
         {
@@ -29,6 +31,12 @@ async function load() {
           iconUrl: "images/thunderbird.png",
         }
       );
+    }
+    if (count > 0) {
+      const window = await messenger.windows.getLastFocused();
+      messenger.windows.update(window.id, {
+        drawAttention: true,
+      });
     }
   });
   // Cannot open the new email until https://bugzilla.mozilla.org/show_bug.cgi?id=1603489 is solved.
