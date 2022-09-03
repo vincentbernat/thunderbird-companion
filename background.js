@@ -33,10 +33,10 @@ async function load() {
       );
     }
     if (count > 0) {
-      const window = await messenger.windows.getLastFocused();
-      messenger.windows.update(window.id, {
-        drawAttention: true,
-      });
+      const windows = await messenger.windows.getAll({windowTypes: ["normal"]});
+      if (windows.length > 0) {
+        messenger.windows.update(windows[0].id, {drawAttention: true});
+      }
     }
   });
   // Cannot open the new email until https://bugzilla.mozilla.org/show_bug.cgi?id=1603489 is solved.
