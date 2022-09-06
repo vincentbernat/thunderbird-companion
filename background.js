@@ -51,9 +51,9 @@ async function load() {
     }
   });
 
-  // ## Go to next unread folder
+  // ## Go to next/previous unread folder
   messenger.commands.onCommand.addListener(async (command) => {
-    if (command !== "next-unread-folder") return;
+    if (!["next-unread-folder", "previous-unread-folder"].includes(command)) return;
     const tab = await messenger.mailTabs.getCurrent();
     if (!tab || !tab.displayedFolder) return;
     const accounts = await messenger.accounts.list();
@@ -77,6 +77,7 @@ async function load() {
       if (f1.path.toLowerCase() > f2.path.toLowerCase()) return 1;
       return 0;
     });
+    if (command == "previous-unread-folder") folders.reverse();
     const current = folders.findIndex(
       (f) =>
         f.accountId === tab.displayedFolder.accountId &&

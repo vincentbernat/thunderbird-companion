@@ -16,6 +16,11 @@
       "suggested_key": {
         "default": "Ctrl+Shift+N"
       }
+    },
+    "previous-unread-folder": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+P"
+      }
     }
   },
   "background": {
