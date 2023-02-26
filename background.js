@@ -33,27 +33,26 @@ async function load() {
       );
     }
     if (count > 0) {
-      const windows = await messenger.windows.getAll({windowTypes: ["normal"]});
+      const windows = await messenger.windows.getAll({
+        windowTypes: ["normal"],
+      });
       if (windows.length > 0) {
-        messenger.windows.update(windows[0].id, {drawAttention: true});
+        messenger.windows.update(windows[0].id, { drawAttention: true });
       }
     }
   });
-  // Cannot open the new email until https://bugzilla.mozilla.org/show_bug.cgi?id=1603489 is solved.
   messenger.notifications.onClicked.addListener(async (id) => {
     if (!id.startsWith("TBC-NewMail: ")) return;
     const mid = id.slice("TBC-NewMail: ".length);
-    const messages = await messenger.messages.query({ headerMessageId: mid });
-    for await (let message of iterateMessagePages(messages)) {
-      console.info(
-        `Should have opened message from ${message.author}, subject ${message.subject}`
-      );
-    }
+    await messenger.messageDisplay.open({
+      headerMessageId: mid,
+    });
   });
 
   // ## Go to next/previous unread folder
   messenger.commands.onCommand.addListener(async (command) => {
-    if (!["next-unread-folder", "previous-unread-folder"].includes(command)) return;
+    if (!["next-unread-folder", "previous-unread-folder"].includes(command))
+      return;
     const tab = await messenger.mailTabs.getCurrent();
     if (!tab || !tab.displayedFolder) return;
     const accounts = await messenger.accounts.list();
